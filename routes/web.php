@@ -11,10 +11,17 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+//Route::get( '/', function () {
+//    return view( 'welcome' );
+//} );
+
+use App\User;
+use Carbon\Carbon;
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get( '/{any}', 'HomeController@index' )->where( 'any', '.*' );
+//Route::get( 'test', function(){
+//
+//} );
+

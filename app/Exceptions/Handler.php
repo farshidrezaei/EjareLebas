@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Telegram\Bot\Laravel\Facades\Telegram;
 
 class Handler extends ExceptionHandler
 {
@@ -29,23 +30,65 @@ class Handler extends ExceptionHandler
     /**
      * Report or log an exception.
      *
-     * @param  \Exception  $exception
+     * @param  \Exception $exception
+     *
      * @return void
+     * @throws Exception
      */
-    public function report(Exception $exception)
+    public function report( Exception $exception )
     {
-        parent::report($exception);
+        parent::report( $exception );
     }
 
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $exception
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Exception               $exception
+     *
      * @return \Illuminate\Http\Response
      */
-    public function render($request, Exception $exception)
+    public function render( $request, Exception $exception )
     {
-        return parent::render($request, $exception);
+        if ( $this->isHttpException( $exception ) ) {
+
+            if ( ! env( 'APP_DEBUG' ) ) {
+                $message =
+                    '```#Host: ' . config( 'app.name' ) . "\n\n" .
+                    '#url: ' . url()->current() . "\n\n" .
+                    '#file: ' . $exception->getFile() . "\n\n" .
+                    '#Line: ' . $exception->getLine() . "\n\n" .
+                    '#Message: ' . $exception->getMessage() . "\n\n```";
+
+                Telegram::sendMessage( [
+                    'chat_id' => '@tooska_error_reporter',
+                    'text' => $message
+                ] );
+            }
+
+
+            switch ( $exception->getStatusCode() ) {
+                // not found
+                case 404:
+                    $data = [
+                        'title' => 'خطای ۴۰۴ !',
+                        'message' => 'صفحه ی مورد مورد نظر یافت نشد.',
+                        'button_title' => 'بازگشت',
+                        'button_link' => '/admin',
+                    ];
+                    return response()->view( 'errors.err', compact( 'data' ) );
+                    break;
+
+                // internal error
+                case '500':
+                    return 'internal Err';
+                    break;
+
+                default:
+                    return $this->renderHttpException( $exception );
+                    break;
+            }
+        }
+            return parent::render( $request, $exception );
     }
 }
