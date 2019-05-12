@@ -49,7 +49,7 @@
                             <v-layout row wrap>
 
                                 <!--title-->
-                                <v-flex xs12 md6>
+                                <v-flex xs12 md9>
                                     <v-text-field
                                             v-model="new_item.title"
                                             label="عنوان"
@@ -60,7 +60,7 @@
                                 </v-flex>
 
                                 <!--size-->
-                                <v-flex xs12 md6>
+                                <v-flex xs12 md3>
                                     <v-combobox
                                             v-model="new_item.size"
                                             :items="sizes"
@@ -310,7 +310,11 @@
 
             updateClothing: function () {
                 this.edit_loading = true;
-                axios.put(`${this.resource_url}${this.new_item.id}`, this.new_item)
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${window.Auth.token()}`
+                };
+                axios.put(`${this.resource_url}${this.new_item.id}`, this.new_item,{headers:headers})
                     .then(response => {
                         if (response.data.result === false) {
                             this.edit_loading = false;

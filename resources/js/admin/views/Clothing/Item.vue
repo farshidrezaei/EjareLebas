@@ -9,7 +9,7 @@
                         <v-flex xs12 md12>
                             <!--image-->
                             <material-card
-                                    color="primary"
+                                     color="primary"
                                     title="تصویر لباس">
                                 <v-card flat class="d-flex">
                                     <v-img
@@ -34,7 +34,7 @@
 
                             <!--information-->
                             <material-card
-                                    color="primary"
+                                     color="primary"
                                     title="مشخصات لباس"
                                     :text="item.title"
                             >
@@ -67,7 +67,7 @@
                         <v-flex xs12 md12>
                             <!--gallery-->
                             <material-card
-                                    color="primary"
+                                     color="primary"
                                     title="گالری"
                             >
                                 <v-carousel
@@ -123,8 +123,11 @@
 
 
         created() {
-
-            axios.get(`/api/admin/clothes/${this.$route.params.id}`)
+            let headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${window.Auth.token()}`
+            };
+            axios.get(`/api/admin/clothes/${this.$route.params.id}`,{headers:headers})
                 .then(response => {
                     this.item = response.data.response;
                 })

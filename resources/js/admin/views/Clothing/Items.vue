@@ -139,12 +139,12 @@
                 :total-items="totalItems"
                 :loading="loading"
                 :expand="expand"
-                color="primary"
+                 color="primary"
                 class="elevation-1"
                 item-key="id"
                 select-all
         >
-            <v-progress-linear slot="progress" color="primary" indeterminate></v-progress-linear>
+            <v-progress-linear slot="progress"  color="primary"   indeterminate></v-progress-linear>
             <template slot="items" slot-scope="props">
                 <tr>
                     <td>
@@ -352,8 +352,11 @@
                 this.loading = true;
                 return new Promise((resolve, reject) => {
                     const {sortBy, descending, page, rowsPerPage} = this.pagination;
-
-                    axios.get(this.resource_url).then((response) => {
+                    let headers = {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${window.Auth.token()}`
+                    };
+                    axios.get(this.resource_url,{headers:headers}).then((response) => {
 
 
                         let items = response.data.response;
@@ -402,7 +405,11 @@
             },
             deleteItems: function () {
                 this.delete_item_loading = true;
-                axios.delete(this.resource_url, {data: {ids: this.selected}})
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${window.Auth.token()}`
+                };
+                axios.delete(this.resource_url, {data: {ids: this.selected},headers:headers})
                     .then(response => {
                         if (response.data.result === false) {
                             this.add_loading = false;

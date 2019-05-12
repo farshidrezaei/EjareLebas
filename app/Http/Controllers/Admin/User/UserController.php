@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Admin\User;
 
 use App\Clothing;
+use App\Events\UserUpdated;
+use App\Libraries\FileUploader;
 use App\User;
+use http\Message;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Collection;
@@ -25,11 +28,8 @@ class UserController extends Controller
 
         } );
 
+        return $this->jsonReturn( $items );
 
-        return response()->json( [
-            'result' => true,
-            'response' => $items
-        ], 200 );
     }
 
     public function show( $id )
@@ -38,36 +38,34 @@ class UserController extends Controller
         $item = User::with( 'roles' )->findOrFail( $id );
         $item->created_at_fa = $item->created_at_jalali;
         $item->gender_farsi = $item->gender_fa;
-        return response()->json( [
-            'result' => true,
-            'response' => $item
-        ] );
+
+        return $this->jsonReturn( $item );
+
+
     }
 
     public function store( Request $request )
     {
 
 
-        $validator = Validator::make( $request->all(), [
-            'avatar' => 'required',
-            'first_name' => 'required|string|max:128',
-            'last_name' => 'required|string|max:128',
-            'gender' => 'required|string|max:128',
-            'national_code' => 'string|max:10',
-            'mobile' => 'required|max:16',
-            'email' => 'required|email|max:128|unique:users',
-            'password' => 'required|min:6|confirmed',
-            'roles' => [
+        $validator = Validator::make( $request->all(),
+            [
+                'avatar' => 'required',
+                'first_name' => 'required|string|max:128',
+                'last_name' => 'required|string|max:128',
+                'gender' => 'required|string|max:128',
+                'national_code' => 'string|max:10',
+                'mobile' => 'required|max:16',
+                'email' => 'required|email|max:128|unique:users',
+                'password' => 'required|min:6|confirmed',
+                'roles' => [
 //                'required',
-                'array'
-            ],
-        ] );
-        if ( $validator->fails() ) {
-            return response()->json( [
-                'result' => false,
-                'message' => 'خطا در اعتبار سنجی',
-                'response' => $validator->messages()
+                    'array'
+                ],
             ] );
+
+        if ( $validator->fails() ) {
+            return $this->jsonReturn( $validator->messages(), false, 'خطا در اعتار سنجی!' );
         } else {
 
             $user = User::create( $request->except( [ 'password_confirmation', 'roles' ] ) );
@@ -75,11 +73,7 @@ class UserController extends Controller
 
             $user->attachRoles( $request[ 'roles' ] );
 
-            return response()->json( [
-                'result' => true,
-                'کاربر با موفقیت اضافه شد.',
-                'response' => $user
-            ] );
+            return $this->jsonReturn( $user, true, 'کاربر با موفقیت اضافه شد.' );
         }
 
     }
@@ -102,11 +96,8 @@ class UserController extends Controller
 
         $validator = Validator::make( $request->all(), $rules );
         if ( $validator->fails() ) {
-            return response()->json( [
-                'result' => false,
-                'message' => 'خطا در اعتبار سنجی',
-                'response' => $validator->messages()
-            ] );
+            return $this->jsonReturn( $validator->messages(), false, 'خطا در اعتار سنجی!' );
+
         } else {
 
             $user = User::findOrFail( $id );
@@ -127,12 +118,10 @@ class UserController extends Controller
 
 
 //            $user->$user->syncRoles( $request[ 'roles' ] );
+            event( new UserUpdated( $user ) );
 
-            return response()->json( [
-                'result' => true,
-                'کاربر با موفقیت ویرایش شد.',
-                'response' => $user
-            ] );
+            return $this->jsonReturn( $user, true, 'کاربر با موفقیت ویرایش شد.' );
+
         }
 
     }
@@ -143,22 +132,15 @@ class UserController extends Controller
         $ids = $ids->pluck( 'id' );
 
         if ( $this->preventUserToDeleteSuperAdmins( $ids ) )
-            return response()->json( [
-                'result' => false,
-                'message' => "شما اجازه حذف کاربر های انتخاب شده را ندارید."
-            ] );
+            return $this->jsonReturn( null, false, 'شما اجازه حذف کاربر های انتخاب شده را ندارید.' );
+
 
         try {
             User::whereIn( 'id', $ids )->delete();
-            return response()->json( [
-                'result' => true,
-                'message' => "کاربرهای انتخاب شده با موفقیت حذف شدند."
-            ] );
+            return $this->jsonReturn( null, true, 'کاربرهای انتخاب شده با موفقیت حذف شدند.' );
         } catch ( \Exception $e ) {
-            return response()->json( [
-                'result' => false,
-                'message' => "در حذف کاربر های انتخاب شده، خطایی رخ داده است."
-            ] );
+            return $this->jsonReturn( null, false, 'در حذف کاربر های انتخاب شده، خطایی رخ داده است.' );
+
         }
     }
 
@@ -185,16 +167,18 @@ class UserController extends Controller
 
     public function avatarUpload( Request $request )
     {
-        $avatar = $request->file( 'avatar' );
+        if ( $request->hasFile( 'avatar' ) ) {
 
-        $avatar_name = 'avatar.' . $avatar->getClientOriginalExtension();
+            $avatar_uploaded_path = FileUploader::file( $request->file( 'avatar' ) )
+                ->name( 'avatar' )
+                ->path( 'avatar' )
+                ->save();
 
-        $avatar_path = "/images/$request->user/avatar/";
+            return $this->jsonReturn( $avatar_uploaded_path, true, 'آواتار آپلود شد.' );
 
-
-        $avatar->move( public_path() . $avatar_path, $avatar_name );
-
-        return response()->json( $avatar_path . $avatar_name );
+        } else {
+            return $this->jsonReturn( null, false, 'آواتار انتخاب نشده است.' );
+        }
 
     }
 
@@ -204,11 +188,7 @@ class UserController extends Controller
         $clothes->each( function ( $item ) {
             $item->confirmation_status_farsi = $item->confirmation_status_fa;
         } );
-
-        return response()->json( [
-            'result' => true,
-            'response' => $clothes
-        ] );
+        return $this->jsonReturn( $clothes );
 
     }
 }

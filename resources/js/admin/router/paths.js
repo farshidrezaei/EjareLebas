@@ -1,8 +1,11 @@
+
+
 export default [
     {
         path: '/dashboard',
         name: 'Dashboard',
-        view: 'Dashboard'
+        view: 'Dashboard',
+        meta: { requiresAuth: true }
     },
     {
         path: '/user-profile',
@@ -14,25 +17,36 @@ export default [
         path: '/clothes',
         name: 'لباس ها',
         view: 'Clothes',
+        meta: { requiresAuth: true }
+
     },
     {
         path: '/clothes/:id',
         name: 'لباس',
-        view: 'Clothing/Item'
+        view: 'Clothing/Item',
+        meta: { requiresAuth: true }
+
     },
     {
+
         path: '/users',
         name: 'کاربر ها',
-        view: 'Users'
+        view: 'Users',
+        meta: { requiresAuth: true }
+
     },
     {
         path: '/users/:id',
         name: 'کاربر',
-        view: 'User/Item'
+        view: 'User/Item',
+        meta: { requiresAuth: true }
+
     },
     {
-        path: '/typography',
-        view: 'Typography'
+        path: '/login',
+        name: 'ورود',
+        view: 'Auth/Login'
+
     },
     {
         path: '/icons',

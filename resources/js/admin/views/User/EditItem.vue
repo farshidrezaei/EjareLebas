@@ -428,13 +428,16 @@
 
                     let form_data = new FormData();
                     form_data.append('avatar', files[0]);
-                    form_data.append('user', this.item_id);
-                    axios.post('api/admin/avatar-upload', form_data)
+                    let headers = {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${window.Auth.token()}`
+                    };
+                    axios.post('api/admin/avatar-upload', form_data, {headers: headers})
                         .then(response => {
-                            this.new_item.avatar = response.data;
+                            this.new_item.avatar = response.data.response;
                         })
                         .catch(response => {
-
+                            console.log(response.message);
                         });
 
                 } else {
@@ -475,7 +478,11 @@
 
             updateItem: function () {
                 this.edit_loading = true;
-                axios.put(`${this.resource_url}${this.item_id}`, this.new_item)
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${window.Auth.token()}`
+                };
+                axios.put(`${this.resource_url}${this.item_id}`, this.new_item,{headers:headers})
                     .then(response => {
                         if (response.data.result === false) {
                             this.edit_loading = false;
@@ -529,7 +536,11 @@
             }
         },
         mounted() {
-            axios.get(this.resource_url + this.item_id)
+            let headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${window.Auth.token()}`
+            };
+            axios.get(this.resource_url + this.item_id,{headers:headers})
                 .then(response => {
                     //add-item
                     this.new_item = {

@@ -5,20 +5,6 @@
             grid-list-xl
     >
         <v-layout wrap>
-            <v-flex xs12>
-                <v-layout warp al>
-                    <v-flex xs12 md6 justify-center align-center>
-                        <v-btn color="success"  fab small @click="login">
-                            <v-icon small>mdi-login</v-icon>
-                        </v-btn>
-                    </v-flex>
-                    <v-flex xs12 md6>
-                        <v-btn color="red" v-if="this.auth.check" fab small @click="logout">
-                            <v-icon small>mdi-logout</v-icon>
-                        </v-btn>
-                    </v-flex>
-                </v-layout>
-            </v-flex>
             <v-flex
                     md12
                     sm12
@@ -374,9 +360,18 @@
 </template>
 
 <script>
+    import {
+        mapMutations,
+        mapState
+    } from 'vuex'
+
+
+
     export default {
+
         data() {
             return {
+
                 localStorageSupport: true,
                 dailySalesChart: {
                     data: {
@@ -519,10 +514,17 @@
                 }
             }
         },
+        computed: {
+            ...mapState('auth', ['check']),
+
+        },
         methods: {
+            ...mapMutations('auth', ['setAuthCheck', 'setAuthUser', 'setAuthToken']),
+
             complete(index) {
                 this.list[index] = !this.list[index]
             },
+
 
         },
 

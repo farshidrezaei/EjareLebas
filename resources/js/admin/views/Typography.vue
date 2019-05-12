@@ -9,7 +9,7 @@
     >
       <v-flex xs12>
         <material-card
-          color="primary"
+          color="`${color}`"
           title="Material Dashboard Heading"
           text="Created using Roboto Font Family"
         >

@@ -430,13 +430,16 @@
 
                     let form_data = new FormData();
                     form_data.append('avatar', files[0]);
-                    form_data.append('user', 1);
-                    axios.post('api/admin/avatar-upload', form_data)
+                    let headers = {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${window.Auth.token()}`
+                    };
+                    axios.post('api/admin/avatar-upload', form_data,{headers:headers})
                         .then(response => {
-                            this.new_item.avatar = response.data;
+                            this.new_item.avatar = response.data.response;
                         })
                         .catch(response => {
-
+                            console.log(response.message);
                         });
 
                 } else {
@@ -477,7 +480,11 @@
 
             saveItem: function () {
                 this.add_loading = true;
-                axios.post(this.resource_url, this.new_item)
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${window.Auth.token()}`
+                };
+                axios.post(this.resource_url, this.new_item,{headers:headers})
                     .then(response => {
                         if (response.data.result === false) {
                             this.add_loading = false;

@@ -7,7 +7,7 @@
         md8
       >
         <material-card
-          color="primary"
+           color="primary"
           title="Vue Material Dashboard PRO"
           text="Are you looking for more components? Please check our Premium Version of Vue Material Dashboard."
         >

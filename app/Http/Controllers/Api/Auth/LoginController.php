@@ -33,7 +33,8 @@ class LoginController extends Controller
 
         if ( $validator->fails() ) {
             return response()->json( [
-                'result' => true,
+                'result' => false,
+                'code' => self::VALIDATE_ERR,
                 'message' => 'خطای اعتبار سنجی',
                 'response' => $validator->errors()
             ] );
@@ -50,25 +51,29 @@ class LoginController extends Controller
                     Auth::logout();
                     return response()->json( [
                         'result' => false,
+                        'code' => self::ACCOUNT_DISABLE_ERR,
                         'message' => 'حساب شما هنوز فعال نشده است. لطفا توسط لینکی که به ایمیل شما ارسال شد، حساب خود را فعال کنید.',
                         'response' => null
                     ] );
                 }
 
-                $user = User::findOrFail( Auth::id(), [ 'id', 'first_name', 'last_name' ] );
+                $user = User::findOrFail( Auth::id() );
 
                 $data = [
                     'user' => $user,
                     'token' => $user->createToken( 'EjareLebas' )->accessToken,
+                    'check' => true
                 ];
                 return response()->json( [
                     'result' => true,
+                    'code' => self::SUCCESS,
                     'message' => 'احراز هویت با موفقیت انجام شد.',
                     'response' => $data
                 ] );
             } else {
                 return response()->json( [
                     'result' => false,
+                    'code' => self::VERIFICATION_ERR,
                     'message' => 'نام کاربری یا رمز عبور وارد شده اشتباه است.',
                     'response' => null
                 ] );
@@ -83,10 +88,15 @@ class LoginController extends Controller
         if ( $user = Auth::guard( 'api' )->user() ) {
             $user->token()->revoke();
             $user->token()->delete();
+            $data = [
+                'check' => false,
+                'user' => null,
+                'token' => ''
+            ];
             return response()->json( [
                 'result' => true,
                 'message' => 'شما از برنامه خارج شدید.',
-                'response' => null
+                'response' => $data
             ] );
         } else {
             return response()->json( [

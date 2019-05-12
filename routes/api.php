@@ -26,7 +26,7 @@ Route::middleware( 'auth:api' )->get( '/user', function ( Request $request ) {
 Route::group( [ 'prefix' => 'auth', 'namespace' => 'Api\Auth' ], function () {
     Route::post( 'login', 'LoginController@login' );
 
-    Route::post( 'logout', 'LoginController@logout' )->middleware('auth:api')->name( 'logout' );
+    Route::post( 'logout', 'LoginController@logout' )->middleware( 'auth:api' )->name( 'logout' );
     Route::post( 'register', 'RegisterController@register' )->name( 'register' );
     Route::post( 'password/email', 'ResetPasswordController@email' );
 
@@ -46,7 +46,7 @@ Route::group( [ 'prefix' => 'v1', 'namespace' => 'Api' ], function () {
 
 } );
 
-Route::group( [ 'prefix' => 'admin', 'namespace' => 'Admin' ], function () {
+Route::group( [ 'prefix' => 'admin', 'namespace' => 'Admin' ,'middleware' => ['auth:api']], function () {
 
     Route::get( 'users/{user_id}/clothes', 'User\UserController@clothes' );
     Route::delete( 'users', 'User\UserController@destroy' );
@@ -55,5 +55,5 @@ Route::group( [ 'prefix' => 'admin', 'namespace' => 'Admin' ], function () {
     Route::delete( 'clothes', 'Clothing\ClothingController@destroy' );
     Route::resource( 'clothes', 'Clothing\ClothingController' );
 
-    Route::post('/avatar-upload','User\UserController@avatarUpload');
+    Route::post( '/avatar-upload', 'User\UserController@avatarUpload' );
 } );

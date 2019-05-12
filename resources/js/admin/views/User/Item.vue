@@ -47,7 +47,7 @@
 
                             <!--information-->
                             <material-card
-                                    color="primary"
+                                     color="primary"
                                     title="مشخصات کاربر"
                                     :text="item.full_name"
                             >
@@ -113,7 +113,7 @@
                             <!--datatable-->
                             <material-card
                                     class=" w-100"
-                                    color="primary"
+                                     color="primary"
                                     title="لباس های کاربر"
                             >
 
@@ -131,7 +131,7 @@
 
 
                                 >
-                                    <v-progress-linear slot="progress" color="primary" indeterminate></v-progress-linear>
+                                    <v-progress-linear slot="progress"  color="primary"   indeterminate></v-progress-linear>
                                     <template slot="items" slot-scope="props">
                                         <tr>
                                             <td>
@@ -242,8 +242,11 @@
                     this.items = data.items;
                     this.totalItems = data.total
                 });
-
-            axios.get(`/api/admin/users/${this.$route.params.id}`)
+            let headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${window.Auth.token()}`
+            };
+            axios.get(`/api/admin/users/${this.$route.params.id}`,{headers:headers})
                 .then(response => {
                     this.item = response.data.response;
                 })
@@ -256,8 +259,11 @@
                 this.loading = true;
                 return new Promise((resolve, reject) => {
                     const {sortBy, descending, page, rowsPerPage} = this.pagination;
-
-                    axios.get(`/api/admin/users/${this.$route.params.id}/clothes`)
+                    let headers = {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${window.Auth.token()}`
+                    };
+                    axios.get(`/api/admin/users/${this.$route.params.id}/clothes`,{headers:headers})
                         .then((response) => {
 
 

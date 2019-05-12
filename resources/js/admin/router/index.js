@@ -11,7 +11,9 @@ import Vue from 'vue'
 import VueAnalytics from 'vue-analytics'
 import Router from 'vue-router'
 import Meta from 'vue-meta'
-// require( '@babel/plugin-syntax-dynamic-import');
+
+import Auth from "../auth";
+
 
 //middleware
 
@@ -19,9 +21,11 @@ import Meta from 'vue-meta'
 import paths from './paths'
 
 
-function route(path, view, name) {
+function route(path, view, name, beforeEnter, meta) {
     return {
         name: name || view,
+        beforeEnter: beforeEnter,
+        meta: meta,
         path,
         component: require(
             `../views/${view}.vue`
@@ -34,12 +38,22 @@ function route(path, view, name) {
 
 Vue.use(Router);
 
+//define routes
+let routes = [];
+
+routes.push({
+    path: '*',
+    redirect: '/dashboard'
+});
+paths.map(path => routes.push(route(path.path, path.view, path.name, path.beforeEnter, path.meta)));
+
+
 // Create a new router
 const router = new Router({
     mode: 'history',
-    routes: paths.map(path => route(path.path, path.view, path.name)).concat([
-        {path: '*', redirect: '/dashboard'}
-    ]),
+    routes: routes,
+
+
     scrollBehavior(to, from, savedPosition) {
         if (savedPosition) {
             return savedPosition
@@ -68,4 +82,20 @@ if (process.env.GOOGLE_ANALYTICS) {
 }
 
 
+router.beforeEach((to, from, next) => {
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+        // this route requires auth, check if logged in
+        // if not, redirect to login page.
+        if (!Auth.check()) {
+            next({
+                path: '/login',
+                query: {redirect: to.fullPath}
+            });
+        } else {
+            next();
+        }
+    } else {
+        next(); // make sure to always call next()!
+    }
+})
 export default router;

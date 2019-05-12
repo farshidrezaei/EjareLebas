@@ -49,7 +49,7 @@
                             <v-layout row wrap>
 
                                 <!--title-->
-                                <v-flex xs12 md6>
+                                <v-flex xs12 md9>
                                     <v-text-field
                                             v-model="new_item.title"
                                             label="عنوان"
@@ -60,7 +60,7 @@
                                 </v-flex>
 
                                 <!--size-->
-                                <v-flex xs12 md6>
+                                <v-flex xs12 md3>
                                     <v-combobox
                                             v-model="new_item.size"
                                             :items="sizes"
@@ -220,35 +220,7 @@
     import 'vue2-dropzone/dist/vue2Dropzone.min.css'
 
 
-    class Errors {
-        constructor() {
-            this.errors = {};
-        }
-
-        hasError(field) {
-            return this.errors.hasOwnProperty(field);
-        }
-
-        recordErrors(errors) {
-            this.errors = errors;
-        }
-
-        getErrorText(field) {
-            if (this.errors[field]) {
-                return this.errors[field][0];
-            }
-        }
-
-        deleteError(field) {
-            if (field) {
-                delete this.errors[field];
-            }
-        }
-
-        hasAnyErrors() {
-            return Object.keys(this.errors).length > 0;
-        }
-    }
+    import Errors from '../../error';
 
     export default {
         name: 'add-item',
@@ -318,13 +290,17 @@
                         cash_collateral: '',
                         non_cash_collateral: [],
                     };
-                    this.errors=new Errors();
+                    this.errors = new Errors();
                     this.$emit('close-dialog');
                 },
 
                 saveItem: function () {
                     this.add_loading = true;
-                    axios.post(this.resource_url, this.new_item)
+                    let headers = {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${window.Auth.token()}`
+                    };
+                    axios.post(this.resource_url, this.new_item, {headers: headers})
                         .then(response => {
                             if (response.data.result === false) {
                                 this.add_loading = false;

@@ -15,13 +15,12 @@
 //    return view( 'welcome' );
 //} );
 
-use App\User;
-use Carbon\Carbon;
+
 
 Auth::routes();
 
 Route::get( '/{any}', 'HomeController@index' )->where( 'any', '.*' );
-//Route::get( 'test', function(){
+//Route::get( 'test', function () {
 //
 //} );
 

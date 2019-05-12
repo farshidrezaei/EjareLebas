@@ -7,7 +7,7 @@
     <v-card
       slot="offset"
       :class="`elevation-${elevation}`"
-      :color="color"
+        color="primary"
       class="pa-4"
       dark
     >

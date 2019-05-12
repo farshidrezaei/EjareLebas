@@ -3,7 +3,7 @@
         <v-layout justify-center wrap>
             <v-flex md12>
                 <material-card
-                        color="primary"
+                        color="`${color}`"
                         title="لباس ها"
                         text="لیست لباس ها"
                 >

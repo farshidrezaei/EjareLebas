@@ -1,4 +1,5 @@
 <template>
+
     <v-navigation-drawer
             id="app-drawer"
             v-model="inputValue"
@@ -8,31 +9,33 @@
             mobile-break-point="991"
             width="260"
             height="auto"
+
     >
         <v-img
                 :src="image"
                 height="100%"
         >
             <v-layout
-                    class="fill-height"
+                    class="fill-height pb-3"
                     tag="v-list"
                     column
+
             >
+                <!--avatar-->
                 <v-list-tile avatar>
                     <v-list-tile-avatar
                             color="white"
                     >
                         <v-img
-                                :src="logo"
+                                :src="this.user.avatar?this.user.avatar:this.logo"
                                 height="34"
                                 contain
                         />
                     </v-list-tile-avatar>
-                    <v-list-tile-title class="title">
-                        فرشید رضائی
-                    </v-list-tile-title>
+                    <v-list-tile-title class="title">{{this.user.full_name?this.user.full_name:'اجاره لباس'}}</v-list-tile-title>
                 </v-list-tile>
                 <v-divider/>
+                <!--search-->
                 <v-list-tile
                         v-if="responsive"
                 >
@@ -42,9 +45,11 @@
                             color="primary"
                     />
                 </v-list-tile>
+                <!--list-->
                 <v-list-tile
-                        v-for="(link, i) in links"
+                        v-for="(link, i) in this.links"
                         :key="i"
+                        :disabled="link.disabled"
                         :to="link.to"
                         :active-class="color"
                         avatar
@@ -63,6 +68,7 @@
             </v-layout>
         </v-img>
     </v-navigation-drawer>
+
 </template>
 
 <script>
@@ -80,48 +86,50 @@
                     to: '/dashboard',
                     icon: 'mdi-view-dashboard',
                     text: 'Dashboard',
-                    sub: []
+                    disabled: false,
                 },
                 {
                     to: '/user-profile',
                     icon: 'mdi-account',
                     text: 'User Profile',
+                    disabled: false,
                 },
                 {
                     to: '/clothes',
                     icon: 'mdi-tshirt-crew',
                     text: 'لباس ها',
-                    sub: []
+                    disabled: false,
+
                 },
                 {
                     to: '/users',
                     icon: 'mdi-account',
                     text: 'کاربران',
-                    sub: []
+                    disabled: false,
                 },
                 {
                     to: '/typography',
                     icon: 'mdi-format-font',
                     text: 'Typography',
-                    sub: []
+                    disabled: false,
                 },
                 {
                     to: '/icons',
                     icon: 'mdi-chart-bubble',
                     text: 'Icons',
-                    sub: []
+                    disabled: false,
                 },
                 {
                     to: '/maps',
                     icon: 'mdi-map-marker',
                     text: 'Maps',
-                    sub: []
+                    disabled: false,
                 },
                 {
                     to: '/notifications',
                     icon: 'mdi-bell',
                     text: 'Notifications',
-                    sub: []
+                    disabled: false,
                 }
             ],
             admins: [
@@ -138,6 +146,7 @@
         }),
         computed: {
             ...mapState('app', ['image', 'color']),
+            ...mapState('auth', ['check', 'user']),
             inputValue: {
                 get() {
                     return this.$store.state.app.drawer
@@ -151,14 +160,13 @@
             }
         },
         mounted() {
-            this.onResponsiveInverted()
+            this.onResponsiveInverted();
             window.addEventListener('resize', this.onResponsiveInverted)
         },
         beforeDestroy() {
             window.removeEventListener('resize', this.onResponsiveInverted)
         },
         methods: {
-
             ...mapMutations('app', ['setDrawer', 'toggleDrawer']),
 
             onResponsiveInverted() {
@@ -188,6 +196,10 @@
             margin-bottom: 30px !important;
             padding-left: 15px;
             padding-right: 15px;
+        }
+
+        .back-black {
+            background-color: black;
         }
     }
 </style>

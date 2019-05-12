@@ -9,7 +9,7 @@
     >
       <v-flex xs12>
         <material-card
-          color="primary">
+           color="primary"  >
           <div
             slot="header"
           >
@@ -202,7 +202,7 @@
             </v-container>
 
             <v-snackbar
-              :color="color"
+                color="primary"
               :bottom="bottom"
               :top="top"
               :left="left"

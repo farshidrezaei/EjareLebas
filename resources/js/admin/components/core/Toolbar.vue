@@ -125,13 +125,73 @@
                 </v-menu>
 
                 <!--account-->
-                <router-link
-                        v-ripple
-                        class="toolbar-items"
-                        to="/user-profile"
+                <v-menu
+                        v-if="true"
+                        :close-on-content-click="true"
+                        bottom
+                        left
+                        offset-y
+                        transition="slide-y-transition"
                 >
-                    <v-icon color="tertiary">mdi-account</v-icon>
-                </router-link>
+                    <v-btn
+                            v-ripple
+                            slot="activator"
+                            class="toolbar-items"
+                            flat
+
+                    >
+                        <v-icon color="tertiary">mdi-account</v-icon>
+                    </v-btn>
+
+
+                        <v-card width="300" class="pt-2"  v-if="check">
+
+                            <v-avatar
+                                    class="mx-auto d-block "
+                                    size="130"
+
+                            >
+                                <img
+                                        :src="`${this.user.avatar}`"
+                                        class="elevation-7 "
+                                        alt="avatar">
+                            </v-avatar>
+                            <v-card-text class="text-xs-center">
+
+                                <span class="card-title font-weight-black d-block">{{this.user.full_name}}</span>
+                                <v-btn
+                                        color="danger"
+                                        round
+                                        @click="logout"
+                                        class="font-weight-light"
+                                >خروج
+                                </v-btn>
+                            </v-card-text>
+
+                        </v-card>
+
+
+                    <v-card v-else>
+                        <v-container grid-list-xl>
+                            <v-layout wrap>
+                                <v-flex xs12>
+                                    <v-card-text class="text-xs-center w-100">
+                                        <router-link :to="{path:'/login'}">
+                                            <v-btn color="primary">ورود</v-btn>
+                                        </router-link>
+                                    </v-card-text>
+                                </v-flex>
+                            </v-layout>
+                        </v-container>
+                    </v-card>
+                </v-menu>
+                <!--<router-link-->
+                <!--v-ripple-->
+                <!--class="toolbar-items"-->
+                <!--to="/user-profile"-->
+                <!--&gt;-->
+                <!--<v-icon color="tertiary">mdi-account</v-icon>-->
+                <!--</router-link>-->
 
                 <!--back-->
                 <a
@@ -198,9 +258,12 @@
             window.removeEventListener('resize', this.onResponsiveInverted)
         },
 
+
         methods: {
             back() {
-                window.history.back();
+                window.history.length > 1
+                    ? this.$router.go(-1)
+                    : this.$router.push('/')
             },
             checkBack() {
                 return window.history.length > 1;
@@ -213,6 +276,24 @@
             onClick() {
                 //
             },
+            logout: function () {
+                let headers = {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${window.Auth.token()}`
+                };
+                axios.post('api/auth/logout', {}, {headers: headers}).then(response => {
+                    console.log(response.data);
+                    window.localStorage.removeItem('auth');
+                    this.setAuthCheck(response.data.response.check);
+                    this.setAuthUser(response.data.response.user);
+                    this.setAuthToken(response.data.response.token);
+                    this.$router.push('/login')
+
+                })
+                    .catch(response => {
+                        console.log(response);
+                    });
+            },
             onResponsiveInverted() {
                 if (window.innerWidth < 991) {
                     this.responsive = true;
@@ -223,15 +304,19 @@
                 }
             },
             ...mapMutations('app', ['setImage']),
+            ...mapMutations('auth', ['setAuthCheck', 'setAuthUser', 'setAuthToken']),
             setColor(color) {
                 this.$store.state.app.color = color
             }
         },
         computed: {
             ...mapState('app', ['image', 'color']),
+            ...mapState('auth', ['check', 'user', 'token']),
+
             color() {
                 return this.$store.state.app.color
-            }
+            },
+
         }
     }
 </script>
